@@ -3,10 +3,16 @@ const express = require("express");
 const app = express();
 
 app.get("/user/getdata" , (req,res) =>{
-
-    throw new Error("asfasdfa");
-    res.send("user data sent");
+    try{
+      throw new Error("asfasdfa");
+      res.send("user data sent");
+    }
+    catch(err)
+    {
+        res.status(500).send("Something went wrong!");
+    }
 });
+
 
 app.use("/" ,(err,req,res,next)=>{
     if(err)
