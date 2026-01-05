@@ -20,31 +20,63 @@ app.post("/signup" , async (req,res)=>{
     
 });
 
+//to delete the user using emailID
+app.delete("/user" , async (req,res )=>{
+    const userid = req.body.userId;
+
+    try{
+        
+        const users = await User.findByIdAndDelete({_id : userid});
+       // const users = await User.findByIdAndDelete(userEmail);
+        res.send("data deleted successfully!!!");
+
+    }
+    catch(error)
+    {
+        res.status(400).send("something went wrong!!!");
+    }
+});
+
+//to update the data
+app.patch("/user" , async (req,res) =>{
+    const data = req.body;
+    const userId = req.body.userId;
+
+    try{
+        const users = await User.findByIdAndUpdate({_id: userId},data);
+        res.send("data updated successfully!!!");
+    }
+    catch(error)
+    {
+        res.status(400).send("something went wrong!!!");
+    }
+})
+
 //to get the data for one user matched with the emailID!!!!
 app.get("/user" , async(req,res) =>{
     const userEmail  = req.body.emailId;
 
-    // try { 
-    //     const users = await User.find({emailId : userEmail});
-    //     if(users.length === 0)
-    //     {
-    //         res.status(404).send("user not found!");
-    //     }
-    //     else {
-    //         res.send(users);
-    //     }
-    // }
-    try{
-        const users = await User.findOne({emailId : userEmail});
-        if(!users)
+    try { 
+        const users = await User.find({emailId : userEmail});
+        if(users.length === 0)
         {
-            
             res.status(404).send("user not found!");
         }
-        else{
+        else {
             res.send(users);
         }
     }
+    // try{
+    //     const users = await User.findOne({emailId : userEmail});
+    //     if(!users)
+    //     {
+            
+    //         res.status(404).send("user not found!");
+    //     }
+    //     else{
+    //         res.send(users);
+    //     }
+    // }
     catch (error)
     {
         res.status(400).send("something went wrong!!");
