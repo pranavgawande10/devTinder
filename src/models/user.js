@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const validator = require("validator");
 const userSchema = new mongoose.Schema({
     firstName: {
         type : String,
@@ -18,12 +18,26 @@ const userSchema = new mongoose.Schema({
         required : true, //it is use to apply compulsion on user 
         unique: true, //check that email must  be unique
         trim :true, //no void spaces before and after the email
+        validate(value){
+            if(!(validator.isEmail(value)))
+            {
+                res.status(400).send("invalid emailID!");
+            }
+        }
+        
     },
     password : {
         type : String,
         required : true,
         minLength: 8,
         maxLength: 50,
+        validate(value)
+        {
+            if((validator.isStrongPassword(value)))
+            {
+                res.status(400).send("enter strong password!");
+            }
+        }
     },
     age : {
         type : Number,
@@ -42,6 +56,14 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl : {
         type: String,
+        default: "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L3JtNTQxLWYtMDA1LXM5My5wbmc.png",
+        validate(value)
+        {
+            if(!(validator.isURL(value)))
+            {
+                res.status(400).send("invalid photoURL!!");
+            }
+        }
     },
     about: {
         type : String,
