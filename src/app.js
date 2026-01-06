@@ -46,7 +46,7 @@ app.delete("/user" , async (req,res )=>{
 //to update the data
 app.patch("/user" , async (req,res) =>{
     const data = req.body;
-    const userId = req.body.userId;
+    const userId = req.param?.userId;
 
     try{
 //this will allow to update only particular fields like user will not able to edit the email once it signup 
