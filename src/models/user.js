@@ -22,12 +22,13 @@ const userSchema = new mongoose.Schema({
     password : {
         type : String,
         required : true,
-        minLength: 10,
+        minLength: 8,
         maxLength: 50,
     },
     age : {
         type : Number,
         min : 18, // allow user if their age is greater than 18 not less than that
+        max : 100,
     },
     gender : {
         type : String,

@@ -10,6 +10,12 @@ app.post("/signup" , async (req,res)=>{
     const user = new User(req.body);
 
     try{
+
+        const data = req.body;
+        if(data?.skills.length > 10)
+        {
+            res.status(400).send("skills list excceded!!"); 
+        }
         await user.save();
         res.send("user data saved successfully!");
     }
@@ -43,6 +49,15 @@ app.patch("/user" , async (req,res) =>{
     const userId = req.body.userId;
 
     try{
+//this will allow to update only particular fields like user will not able to edit the email once it signup 
+        const update_allow = ["userId" , "skills" , "photoUrl" , "about" , "gender","age"];
+        const isUpdateAllowed = Object.keys(data).every((k) => update_allow.includes(k));
+        if(!(isUpdateAllowed))
+        {
+            res.status(400).send("update not allowed!!");
+           
+        }
+ //-------------------------------------------------------------------
         const users = await User.findByIdAndUpdate({_id: userId},data, {runValidators:true});
         
         res.send("data updated successfully!!!");
