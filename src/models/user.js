@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         validate(value){
             if(!(validator.isEmail(value)))
             {
-                res.status(400).send("invalid emailID!");
+                throw new Error("invalid emailID!");
             }
         }
         
@@ -30,14 +30,14 @@ const userSchema = new mongoose.Schema({
         type : String,
         required : true,
         minLength: 8,
-        maxLength: 50,
-        validate(value)
-        {
-            if((validator.isStrongPassword(value)))
-            {
-                res.status(400).send("enter strong password!");
-            }
-        }
+        maxLength: 100,
+        // validate(value)
+        // {
+        //     if((validator.isStrongPassword(value)))
+        //     {
+        //         throw new Error("enter strong password!");
+        //     }
+        // }
     },
     age : {
         type : Number,

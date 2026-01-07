@@ -2,14 +2,66 @@ const express = require("express");
 const connectDB = require("./config/database.js");
 const app = express();
 const User = require("./models/user.js");
+const {signupValidation} = require("./utils/validation.js");
+const bcrypt =  require("bcrypt");
+const validator = require("validator");
+
 
 app.use(express.json());
 
+app.post("/login" , async(req,res)=>{
+    try{
+        const {emailId , password} = req.body;
+        if(!(validator.isEmail(emailId)))
+        {
+            res.status(400).send("Please enter valid EmailId!");
+        }
+
+        const userpresent  = await User.findOne({emailId : emailId});
+        if(!userpresent)
+        {
+            throw new Error("Invalid Credentials!");
+        }
+        const isPasswordvalid = await bcrypt.compare(password ,userpresent.password);
+
+        if(isPasswordvalid)
+        {
+            res.send("Login successfully!!!");
+        }
+        else
+        {
+            throw new Error("Invalid credentials!!");
+        }
+    }
+    catch(error)
+    {
+        res.status(400).send("login failed please enter valid data!" + error.message);
+    }
+})
+
+
+
 app.post("/signup" , async (req,res)=>{
     // console.log(req.body);
-    const user = new User(req.body);
+    
 
     try{
+        //validation of data
+        signupValidation(req);
+
+        //encrypt the password
+        const {firstName, lastName, emailId,password} = req.body;
+        const passwordHash = await bcrypt.hash(password , 10);
+
+        console.log(passwordHash);
+
+        //create a new instance of user model
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password : passwordHash,
+        });
 
         const data = req.body;
         if(data?.skills.length > 10)
