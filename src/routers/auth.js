@@ -51,7 +51,7 @@ authRouter.post("/signup" , async (req,res)=>{
         signupValidation(req);
 
         //encrypt the password
-        const {firstName, lastName, emailId,password} = req.body;
+        const {firstName, lastName, emailId,password,age} = req.body;
         const passwordHash = await bcrypt.hash(password , 10);
 
         console.log(passwordHash);
@@ -61,6 +61,7 @@ authRouter.post("/signup" , async (req,res)=>{
             firstName,
             lastName,
             emailId,
+            age,
             password : passwordHash,
         });
 
@@ -69,6 +70,7 @@ authRouter.post("/signup" , async (req,res)=>{
         {
             res.status(400).send("skills list excceded!!"); 
         }
+        console.log(user);
         await user.save();
         res.send("user data saved successfully!");
     }
