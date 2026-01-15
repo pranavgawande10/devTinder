@@ -1,71 +1,79 @@
-💘 DevTinder — Where Code Finds Its Perfect Match
+# 🚀 DevTinder — Where Code Meets Its Match
 
-Because great projects start with the right people.
+DevTinder is a **full-stack developer networking platform** inspired by swipe-based apps.  
+It helps developers discover, connect, and collaborate with other developers for **projects, hackathons, mentorship, and startups**.
 
-DevTinder is a full-stack networking platform for developers, inspired by the swipe-based discovery of dating apps. Instead of dating, developers connect to collaborate on projects, hackathons, startups, or mentorship—all based on skills, interests, and mutual intent.
+---
 
-Swipe smart. Match better. Build faster. 🚀
+## ✨ Features
 
-🧠 What Makes DevTinder Special?
+### 👤 Developer Profiles
+- Create and manage detailed profiles
+- Add skills (MERN, Python, DevOps, etc.)
+- Bio, profile photo, and personal details
 
-Imagine LinkedIn 🤝 Tinder 🤝 GitHub — but actually fun to use.
+### 🔐 Secure Authentication
+- Signup & Login using **JWT**
+- JWT stored in **HTTP-only cookies**
+- Password hashing with **bcrypt**
+- Input validation using **Validator.js**
 
-Discover developers based on tech stack & interests
+### 🧭 Smart Discovery Feed
+- Shows only **new and relevant developers**
+- Automatically hides:
+  - Ignored users
+  - Already interacted users
+  - Accepted or rejected connections
 
-Swipe to ignore or show interest
+### 🔁 Connection System (State-Based)
 
-Mutual interest = Match
+DevTinder uses a **clear connection state machine** to manage interactions:
 
-Start collaborating instantly
+| State       | Description |
+|------------|-------------|
+| `ignored`  | User dismissed the profile |
+| `interested` | Connection request sent |
+| `accepted` | Both users connected |
+| `rejected` | Request declined |
 
-🛠️ Tech Stack (Built Like a Pro)
-🎨 Frontend
+### 🧠 Connection Logic
+- Prevents duplicate requests
+- Avoids spam
+- Ensures clean user experience
+- Easily scalable for future features (chat, recommendations)
 
-React.js – Component-driven UI
+---
 
-Tailwind CSS – Clean, responsive styling
+## 🛠️ Tech Stack
 
-Redux Toolkit – Centralized and scalable state management
+### Frontend
+- React.js
+- Tailwind CSS
+- Redux Toolkit
 
-⚙️ Backend
+### Backend
+- Node.js
+- Express.js
 
-Node.js + Express.js – RESTful API & business logic
+### Database
+- MongoDB
+- Mongoose
 
-MongoDB + Mongoose – Flexible, schema-based data modeling
+### Authentication & Security
+- JWT (JSON Web Tokens)
+- Cookie-Parser
+- bcrypt
+- Validator.js
 
-🔐 Authentication & Security
+---
 
-JWT (JSON Web Tokens) – Secure user authentication
+## 🏗️ System Architecture
 
-Cookie-Parser – HTTP-only cookie handling
-
-bcrypt – Strong password hashing
-
-Validator.js – Robust input validation
-
-✨ Core Features
-👤 Developer Profiles
-
-Skills (MERN, Python, DevOps, etc.)
-
-Bio & profile photo
-
-Editable via a secure dashboard
-
-🔐 Secure Authentication
-
-Signup/Login with encrypted passwords
-
-JWT stored in secure cookies
-
-Protected routes via middleware
-
-🧭 Smart Discovery Feed
-
-Shows only new developers
-
-Automatically hides:
-
-Ignored profiles
-
-Already swiped users
+```text
+Client (React + Redux)
+        ↓
+Express API (Node.js)
+        ↓
+Auth & Validation Middleware
+        ↓
+MongoDB (Users & Connections)
