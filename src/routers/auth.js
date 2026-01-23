@@ -29,16 +29,17 @@ authRouter.post("/login" , async(req,res)=>{
             //add token to cookie and send the response back to user !!
             res.cookie("token" , token); 
             
-            res.send("Login successfully!!!");
+            res.send(userpresent);
         }
         else
         {
-            throw new Error("Invalid credentials!!");
+            throw new Error(" Invalid credentials!!");
         }
     }
     catch(error)
     {
-        res.status(400).send("login failed please enter valid data!" + error.message);
+        res.status(400).send( "Error: "+ error.message);
+       // res.status(400).send(" login failed please enter valid data!   " + error.message);
     }
 });
 
@@ -52,9 +53,11 @@ authRouter.post("/signup" , async (req,res)=>{
 
         //encrypt the password
         const {firstName, lastName, emailId,password,age} = req.body;
+
         const passwordHash = await bcrypt.hash(password , 10);
 
-        console.log(passwordHash);
+        // console.log(passwordHash);
+
 
         //create a new instance of user model
         const user = new User({
@@ -64,18 +67,23 @@ authRouter.post("/signup" , async (req,res)=>{
             age,
             password : passwordHash,
         });
+        
 
         const data = req.body;
-        if(data?.skills.length > 10)
+        if(data?.skills?.length > 10)
         {
             res.status(400).send("skills list excceded!!"); 
         }
-        console.log(user);
-        await user.save();
-        res.send("user data saved successfully!");
+        // console.log(user);
+        const savedUser = await user.save();
+         const token = await savedUser.getJWT();
+            //add token to cookie and send the response back to user !!
+            res.cookie("token" , token); 
+        res.json({message : "User Added successfully!" , data :savedUser});
     }
     catch(err)
     {
+        console.log(err.message)
         res.status(400).send("data not saved!" + err);
     }
     

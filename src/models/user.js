@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
         type : String,
         //custom validate function means user ristrict the particular user data 
         validate(value) {
-            if(!["male","female","others"].includes(value))
+            if(!["male","female","others","prefer not to say"].includes(value))
             {
                 throw new Error("gender data is not valid!");
             }

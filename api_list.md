@@ -25,3 +25,5 @@ userRouter
 - GET /user/feed -gets you the profile of all other users
 
 Status : ignore, intrested,accepted, rejected
+
+----------------------done---------------------

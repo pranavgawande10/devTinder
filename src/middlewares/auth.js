@@ -10,13 +10,14 @@ const User = require("../models/user");
         const {token } = req.cookies;
         if(!token)
         {
-          throw new Error("token not valid!!");
+          return res.status(401).send("please login!!");
         }
 
         const decodeddata = await jwt.verify(token , "dev@tinder");
 
         const { _id} = decodeddata;
         const user = await User.findById(_id);
+        // console.log(user);
       
         if(!user)
         {
