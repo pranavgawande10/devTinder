@@ -4,12 +4,12 @@ const app = express();
 const cookieParser = require("cookie-parser");
 
 
-
 const authRouter = require("./routers/auth.js");
 const profileRouter = require("./routers/profile.js");
 const requestRouter = require("./routers/request.js");
 const userRouter= require("./routers/user.js");
 const cors = require("cors");
+require("dotenv").config();
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -28,8 +28,8 @@ app.use("/" , userRouter);
 connectDB()
     .then(() => {
         console.log("connect to DB successfully!");
-        app.listen(3000, ()=>{
-             console.log("server is successfully listening at port 3000....");
+        app.listen(process.env.PORT, ()=>{
+             console.log("server is successfully listening at port " + process.env.PORT);
         });
     })
     .catch((err) =>{
