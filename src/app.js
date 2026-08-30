@@ -17,6 +17,7 @@ const requestRouter = require("./routers/request.js");
 const userRouter= require("./routers/user.js");
 const chatRouter = require("./routers/chat.js");
 const notificationRouter = require("./routers/notification.js");
+const aiRouter = require("./routers/ai.js");
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -31,6 +32,7 @@ app.use("/" , requestRouter);
 app.use("/" , userRouter);
 app.use("/" , chatRouter);
 app.use("/", notificationRouter);
+app.use("/", aiRouter);
 
 // Socket.io setup
 const io = new Server(server, {
