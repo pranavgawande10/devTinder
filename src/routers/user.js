@@ -103,5 +103,32 @@ userRouter.get("/feed" , userAuth , async (req,res)=>{
         res.status(400).json({message : err.message});
     }
 })
+userRouter.get("/user/profile/:userId", userAuth, async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        const targetUserId = req.params.userId;
+
+        // Verify they are connected
+        const connection = await ConnectionRequest.findOne({
+            $or: [
+                { fromUserId: loggedInUser._id, toUserId: targetUserId, status: "accepted" },
+                { fromUserId: targetUserId, toUserId: loggedInUser._id, status: "accepted" },
+            ]
+        });
+
+        if (!connection) {
+            return res.status(403).json({ message: "You are not connected with this user!" });
+        }
+
+        const targetUser = await User.findById(targetUserId).select("-password -emailId");
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        res.json({ message: "Profile fetched successfully", data: targetUser });
+    } catch (err) {
+        res.status(400).json({ message: "Error: " + err.message });
+    }
+});
 
 module.exports = userRouter;

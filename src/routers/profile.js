@@ -2,6 +2,8 @@ const express = require("express");
 const profileRouter = express.Router();
 const { userAuth } = require("../middlewares/auth.js");
 const {validateEditProfileData} = require("../utils/validation.js");
+const { fetchGitHubData } = require("../utils/github.js");
+const User = require("../models/user.js");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary.js");
 const streamifier = require("streamifier");
@@ -76,4 +78,41 @@ profileRouter.patch("/profile/edit" , userAuth, async(req,res) =>{
         res.status(400).send("Error: " + err.message);
     }
 });
+profileRouter.get("/profile/github/:userId", userAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+        
+        if (!user.githubUsername) {
+            return res.status(400).json({ message: "No GitHub username linked!" });
+        }
+
+        const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
+        const now = new Date();
+        if (user.githubData && user.githubData.fetchedAt && (now - user.githubData.fetchedAt < NINETY_DAYS)) {
+            return res.json(user.githubData);
+        }
+
+        const newGithubData = await fetchGitHubData(user.githubUsername);
+        user.githubData = newGithubData;
+        await user.save();
+
+        res.json(user.githubData);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching GitHub data: " + err.message });
+    }
+});
+profileRouter.patch("/profile/notifications/clear", userAuth, async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        loggedInUser.unreadNotificationsCount = 0;
+        await loggedInUser.save();
+        res.json({ message: "Notifications cleared" });
+    } catch (err) {
+        res.status(400).send("Error: " + err.message);
+    }
+});
+
 module.exports = profileRouter;

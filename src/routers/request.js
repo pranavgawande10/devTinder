@@ -57,6 +57,36 @@ requestRouter.post("/request/send/:status/:userId" ,userAuth, async (req,res) =>
 
         const data = await connectionRequest.save();
 
+        // Real-time notification
+        if (status === "intrested") {
+            toUser.unreadNotificationsCount = (toUser.unreadNotificationsCount || 0) + 1;
+            await toUser.save();
+            
+            const Notification = require("../models/notification.js");
+            await new Notification({
+                userId: toUser._id,
+                senderId: req.user._id,
+                type: "connection_request",
+                text: "requested to connect with you",
+                connectionRequestId: data._id
+            }).save();
+
+            const io = req.app.get("io");
+            const onlineUsers = req.app.get("onlineUsers");
+            const targetSocketId = onlineUsers.get(toUserId.toString());
+            if (targetSocketId) {
+                io.to(targetSocketId).emit("new_request", {
+                    fromUser: {
+                        _id: req.user._id,
+                        firstName: req.user.firstName,
+                        lastName: req.user.lastName,
+                        photoUrl: req.user.photoUrl,
+                    },
+                    message: req.user.firstName + " is interested in you!",
+                });
+            }
+        }
+
         res.json({
             
             message: req.user.firstName + " is " + status + " in " + toUser?.firstName,
@@ -97,6 +127,40 @@ requestRouter.post("/request/review/:status/:requestId" ,userAuth, async(req,res
         connectionRequest.status = status;
 
         const data = await connectionRequest.save();
+
+        // Real-time notification
+        if (status === "accepted") {
+            const senderUserId = connectionRequest.fromUserId.toString();
+            const senderUser = await User.findById(senderUserId);
+            if (senderUser) {
+                senderUser.unreadNotificationsCount = (senderUser.unreadNotificationsCount || 0) + 1;
+                await senderUser.save();
+
+                const Notification = require("../models/notification.js");
+                await new Notification({
+                    userId: senderUser._id,
+                    senderId: req.user._id,
+                    type: "request_accepted",
+                    text: "accepted your connection request"
+                }).save();
+            }
+
+            const io = req.app.get("io");
+            const onlineUsers = req.app.get("onlineUsers");
+            const targetSocketId = onlineUsers.get(senderUserId);
+            if (targetSocketId) {
+                io.to(targetSocketId).emit("request_accepted", {
+                    fromUser: {
+                        _id: req.user._id,
+                        firstName: req.user.firstName,
+                        lastName: req.user.lastName,
+                        photoUrl: req.user.photoUrl,
+                    },
+                    message: req.user.firstName + " accepted your request!",
+                });
+            }
+        }
+
         res.json({message: "connection request " + status , data });
 
     }

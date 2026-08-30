@@ -76,7 +76,30 @@ const userSchema = new mongoose.Schema({
     skills: {
         type: [String],
     },
-    
+    githubUsername: {
+        type: String,
+        trim: true,
+        default: "",
+    },
+    githubData: {
+        repos: [{
+            name: String,
+            description: String,
+            language: String,
+            stars: Number,
+            forks: Number,
+            url: String,
+        }],
+        topLanguages: [String],
+        avatarUrl: String,
+        publicRepos: Number,
+        followers: Number,
+        fetchedAt: Date,
+    },
+    unreadNotificationsCount: {
+        type: Number,
+        default: 0,
+    },
 },
 {
     timestamps:true,
