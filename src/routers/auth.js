@@ -27,7 +27,12 @@ authRouter.post("/login" , async(req,res)=>{
             // const token = await jwt.sign({_id : userpresent._id }, "dev@tinder", {expiresIn : "1h"});
             const token = await userpresent.getJWT();
             //add token to cookie and send the response back to user !!
-            res.cookie("token" , token); 
+            const cookieOptions = {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
+            };
+            res.cookie("token" , token, cookieOptions); 
             
             res.send(userpresent);
         }
@@ -78,7 +83,12 @@ authRouter.post("/signup" , async (req,res)=>{
         const savedUser = await user.save();
          const token = await savedUser.getJWT();
             //add token to cookie and send the response back to user !!
-            res.cookie("token" , token); 
+            const cookieOptions = {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
+            };
+            res.cookie("token" , token, cookieOptions); 
         res.json({message : "User Added successfully!" , data :savedUser});
     }
     catch(err)
@@ -91,7 +101,10 @@ authRouter.post("/signup" , async (req,res)=>{
 
 authRouter.post("/logout" , (req,res) =>{
     res.cookie("token" , null ,{
-        expires :new Date(Date.now()), 
+        expires :new Date(Date.now()),
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
     });
 
     res.send("Logout successfully!");
