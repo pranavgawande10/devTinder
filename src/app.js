@@ -20,7 +20,7 @@ const notificationRouter = require("./routers/notification.js");
 const aiRouter = require("./routers/ai.js");
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
     credentials: true,
 }));
 app.use(express.json());
@@ -37,7 +37,7 @@ app.use("/", aiRouter);
 // Socket.io setup
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
         credentials: true,
     },
 });
@@ -70,7 +70,7 @@ io.use(async (socket, next) => {
 
 // Socket.io connection handler
 io.on("connection", (socket) => {
-    console.log("User connected: " + socket.userId);
+    // console.log("User connected: " + socket.userId);
     onlineUsers.set(socket.userId, socket.id);
 
     // Chat events
@@ -155,7 +155,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-        console.log("User disconnected: " + socket.userId);
+        // console.log("User disconnected: " + socket.userId);
         onlineUsers.delete(socket.userId);
     });
 });
@@ -163,8 +163,9 @@ io.on("connection", (socket) => {
 connectDB()
     .then(() => {
         console.log("connect to DB successfully!");
-        server.listen(process.env.PORT, ()=>{
-             console.log("server is successfully listening at port " + process.env.PORT);
+        const port = process.env.PORT || 3000;
+        server.listen(port, ()=>{
+             console.log("server is successfully listening at port " + port);
         });
     })
     .catch((err) =>{
