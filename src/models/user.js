@@ -70,11 +70,16 @@ const userSchema = new mongoose.Schema({
     },
     about: {
         type : String,
-        maxLength: 350,
+        maxLength: 1000,
         default: "this is default about the user!!!",
     },
     skills: {
         type: [String],
+    },
+    headline: {
+        type: String,
+        maxLength: 150,
+        default: "Software Developer",
     },
     githubUsername: {
         type: String,

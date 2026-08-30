@@ -7,6 +7,7 @@ const User = require("../models/user.js");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary.js");
 const streamifier = require("streamifier");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -112,6 +113,46 @@ profileRouter.patch("/profile/notifications/clear", userAuth, async (req, res) =
         res.json({ message: "Notifications cleared" });
     } catch (err) {
         res.status(400).send("Error: " + err.message);
+    }
+});
+
+profileRouter.post("/profile/enhance-bio", userAuth, async (req, res) => {
+    try {
+        const { skills, about } = req.body;
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ message: "Gemini API key is not configured" });
+        }
+        
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+
+        const prompt = `You are an expert tech recruiter and resume writer. 
+I have a developer profile with the following details:
+Skills: ${skills ? skills.join(", ") : "Not specified"}
+Current About Me / Notes: ${about || "Not specified"}
+
+Please generate a professional, engaging developer bio and a catchy headline.
+Keep the bio concise (maximum 300 characters).
+Format the output strictly as a JSON object with two keys: "headline" and "bio".
+Do not include any markdown blocks or extra text outside the JSON.`;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        
+        // Parse JSON
+        let enhancedData;
+        try {
+            // Strip out markdown code blocks if the model wrapped it
+            const cleanedText = responseText.replace(/```json/gi, "").replace(/```/g, "").trim();
+            enhancedData = JSON.parse(cleanedText);
+        } catch (e) {
+             return res.status(500).json({ message: "Failed to parse AI response" });
+        }
+        
+        res.json({ headline: enhancedData.headline, bio: enhancedData.bio });
+    } catch (err) {
+        console.error("AI Enhance Error:", err);
+        res.status(500).json({ message: "Error enhancing bio: " + err.message });
     }
 });
 
