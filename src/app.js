@@ -10,6 +10,7 @@ const requestRouter = require("./routers/request.js");
 const userRouter= require("./routers/user.js");
 const cors = require("cors");
 require("dotenv").config();
+require("./utils/cronjob.js");
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -18,6 +19,10 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+
+app.get("/", (req, res) => {
+    res.send("Welcome to DevTinder API! Server is running cleanly.");
+});
 
 app.use("/" , authRouter);
 app.use("/" , profileRouter);

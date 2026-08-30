@@ -30,7 +30,7 @@ const User = require("../models/user");
     }
     catch(error)
     {
-         res.status(400).send("Error : " + error );
+         res.status(401).send("Error : " + error );
     }
  }
 
