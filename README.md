@@ -1,6 +1,13 @@
-# 🚀 DevTinder API — Where Code Meets Its Match (Backend)
+# 🚀 DevTinder API — Microservices Architecture (Backend)
 
-Welcome to the backend repository for **DevTinder**, a full-stack developer networking platform. This robust Node.js/Express API powers the core functionality of DevTinder, utilizing a modern tech stack to handle everything from real-time WebSockets to AI-generated content.
+> ⚠️ **Microservices Architecture:** This repository contains the Node.js/Express Backend API service. The decoupled React.js Frontend service can be found here: [👉 DevTinder-Web Repository](https://github.com/pranavgawande10/devTinder-web)
+
+Welcome to the backend service for **DevTinder**, a full-stack developer networking platform. This API is designed using a **microservices-oriented approach**, where core domains (Authentication, User Feed, Chat, AI integrations) are highly modularized, decoupled from the frontend, and designed for independent scalability.
+
+## 🏗️ Architectural Overview
+- **Decoupled Services:** Strict separation of concerns between the React client and Node API.
+- **Modular Domains:** Routing and business logic are isolated by feature (`auth`, `profile`, `chat`, `ai`), making it trivial to spin them out into independent Docker containers in the future.
+- **Stateless Authentication:** JWT-based auth ensures the API remains stateless, a crucial requirement for horizontally scaling microservices.
 
 ## 🛠️ Tech Stack
 
@@ -15,41 +22,38 @@ Welcome to the backend repository for **DevTinder**, a full-stack developer netw
 
 ## ✨ Detailed Feature Breakdown
 
-### 1. 🔐 Advanced Authentication & Session Management
+### 1. 🔐 Advanced Authentication Service
 Security is handled completely server-side to prevent client-side tampering. 
-*   **Password Hashing:** User passwords are encrypted utilizing `bcrypt` before database insertion.
-*   **JWT & HTTP-Only Cookies:** Upon login, a JSON Web Token (JWT) is generated and securely attached to an HTTP-Only cookie. This prevents Cross-Site Scripting (XSS) attacks, as the token cannot be accessed via JavaScript on the frontend.
-*   **Data Validation:** Strict sanitization and validation of all incoming payload data using `validator.js` to prevent NoSQL injection and malformed data.
+*   **Stateless JWT:** Generates JSON Web Tokens secured in HTTP-Only cookies to prevent XSS attacks while allowing the API to scale without session memory.
+*   **Password Hashing:** User passwords are encrypted utilizing `bcrypt`.
+*   **Data Validation:** Strict sanitization using `validator.js`.
 
 ### 2. 🧠 DevSpark AI Engine (Profile & Chat)
-Integrated with **Google Gemini AI (3.6 Flash)** to act as a built-in assistant for developers across the platform.
-*   **AI Profile Enhancer:** When a user updates their profile, the backend takes their raw skills/notes and uses a specialized prompt to return a highly polished, professional developer bio and headline in strict JSON format.
-*   **DevSpark AI Chat Assistant:** A dedicated `/chat/ai` endpoint allows users to converse directly with an AI expert. The model is system-prompted to provide concise, accurate architectural advice and can generate full project ideas complete with titles, tech stacks, and step-by-step execution plans.
+Integrated with **Google Gemini AI (3.6 Flash)** to act as a built-in assistant for developers.
+*   **AI Profile Enhancer:** Takes raw skills/notes and returns a highly polished, professional developer bio and headline in strict JSON format.
+*   **DevSpark AI Chat Assistant:** A dedicated `/chat/ai` endpoint allows users to converse directly with an AI expert to generate full project ideas and execution plans.
 
 ### 3. 🐙 GitHub Profile Integration
-Because developers live on GitHub, the backend integrates directly with the GitHub API to enrich user profiles.
-*   **Automated Data Fetching:** The `/profile/github/:userId` endpoint retrieves real-time data from a user's linked GitHub account (repositories, stats, etc.).
-*   **Smart Caching Mechanism:** To avoid hitting rate limits and improve response times, the backend caches the fetched GitHub data in MongoDB and only triggers a fresh fetch if the cached data is older than 90 days.
+*   **Automated Data Fetching:** Retrieves real-time data from a user's linked GitHub account.
+*   **Smart Caching Mechanism:** Caches fetched GitHub data in MongoDB and only triggers a fresh fetch if the cached data is older than 90 days, reducing external API loads.
 
-### 4. 🔁 4-State Connection Engine (Swipe Logic)
-To emulate a modern swipe-based app, the backend utilizes a state-machine architecture for user connections:
-*   **States:** `ignored` (swiped left), `interested` (swiped right), `accepted` (mutual match), and `rejected`.
-*   **Conflict Prevention:** Robust database querying ensures that duplicate connection requests cannot be created, and users cannot send requests to themselves or to users they have already interacted with.
+### 4. 🔁 Connection & Matching Engine
+A state-machine architecture for user connections:
+*   **States:** `ignored`, `interested`, `accepted`, and `rejected`.
+*   **Conflict Prevention:** Robust database querying ensures duplicate requests cannot be created.
 
-### 5. 🧭 Smart Feed Algorithm
-The `/user/feed` endpoint is responsible for delivering relevant developers to the user.
-*   It dynamically filters the entire database of users.
-*   It automatically excludes: the logged-in user, users who have been `ignored`, users who the current user is already `interested` in, and users who are already `accepted` or `rejected`.
-*   This ensures the feed is always fresh and never shows repeated profiles.
+### 5. 🧭 Smart Discovery Feed
+The `/user/feed` endpoint delivers relevant developers to the user.
+*   Dynamically filters the database, automatically excluding: the logged-in user, and users already interacted with.
+*   Optimized aggregation queries ensure high performance even as the user base grows.
 
-### 6. 💬 Real-Time Communication
-Once two developers reach the `accepted` state, the chat functionality unlocks.
-*   Powered by **Socket.io**, the backend establishes a persistent WebSocket connection with authenticated clients.
-*   Messages are emitted and broadcasted in real-time between matched users, facilitating instant collaboration.
+### 6. 💬 Real-Time Communication Service
+*   Powered by **Socket.io**, establishing a persistent WebSocket connection.
+*   Messages are broadcasted in real-time between mutually `accepted` users.
 
 ### 7. ☁️ Cloud Media & Automations
-*   **Cloudinary Integration:** Profile images are uploaded via memory streams (`multer` + `streamifier`) directly to Cloudinary, ensuring the Node server isn't bogged down by local file storage.
-*   **Scheduled Cron Jobs:** Utilizes `node-cron` for running background tasks, and `Nodemailer` for dispatching transactional emails or notifications.
+*   **Cloudinary Integration:** Profile images are uploaded via memory streams (`multer` + `streamifier`) directly to Cloudinary.
+*   **Scheduled Cron Jobs:** Utilizes `node-cron` for running background tasks and `Nodemailer` for transactional emails.
 
 ---
 *Built with ❤️ by Pranav Gawande*
